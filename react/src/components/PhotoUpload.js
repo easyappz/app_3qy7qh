@@ -8,13 +8,11 @@ const PhotoUpload = () => {
   const [fileList, setFileList] = useState([]);
   const [photos, setPhotos] = useState([]);
   const [loading, setLoading] = useState(false);
-  const [user, setUser] = useState(null);
 
   useEffect(() => {
     const fetchProfile = async () => {
       try {
         const data = await getProfile();
-        setUser(data.user);
         // Здесь можно добавить загрузку существующих фотографий пользователя, если API поддерживает
       } catch (error) {
         message.error(error.error || 'Ошибка при загрузке профиля');
@@ -40,9 +38,6 @@ const PhotoUpload = () => {
       const imageUrl = URL.createObjectURL(file);
       const photoData = await uploadPhoto({ imageUrl });
       setPhotos([...photos, photoData.photo]);
-      // Обновляем профиль пользователя после загрузки фото, чтобы отобразить актуальные баллы
-      const updatedProfile = await getProfile();
-      setUser(updatedProfile.user);
       onSuccess('ok');
       setLoading(false);
       message.success('Фотография успешно загружена!');
@@ -69,11 +64,6 @@ const PhotoUpload = () => {
 
   return (
     <div style={{ padding: '20px', maxWidth: '800px', margin: '0 auto' }}>
-      {user && (
-        <div style={{ marginBottom: '20px', textAlign: 'center' }}>
-          <h3 style={{ color: '#333', fontSize: '18px' }}>Ваши баллы: {user.points}</h3>
-        </div>
-      )}
       <Upload {...uploadProps} disabled={loading}>
         <Button 
           icon={<UploadOutlined />} 
