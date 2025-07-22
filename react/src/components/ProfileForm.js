@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Form, Input, Select, InputNumber, Button, message } from 'antd';
-import { getProfile, updateProfile } from '../api/auth';
+import { getProfile, updateProfile } from '../api/user';
 
 const { Option } = Select;
 
@@ -13,11 +13,11 @@ const ProfileForm = () => {
     const fetchProfile = async () => {
       setLoading(true);
       try {
-        const data = await getProfile();
-        setUser(data.user);
-        form.setFieldsValue(data.user);
+        const response = await getProfile();
+        setUser(response.data.user);
+        form.setFieldsValue(response.data.user);
       } catch (error) {
-        message.error(error.error || 'Ошибка при загрузке профиля');
+        message.error(error.response?.data?.error || 'Ошибка при загрузке профиля');
       } finally {
         setLoading(false);
       }
@@ -28,11 +28,11 @@ const ProfileForm = () => {
   const onFinish = async (values) => {
     setLoading(true);
     try {
-      const data = await updateProfile(values);
-      setUser(data.user);
+      const response = await updateProfile(values);
+      setUser(response.data.user);
       message.success('Профиль обновлен');
     } catch (error) {
-      message.error(error.error || 'Ошибка при обновлении профиля');
+      message.error(error.response?.data?.error || 'Ошибка при обновлении профиля');
     } finally {
       setLoading(false);
     }

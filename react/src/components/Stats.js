@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Card, message, List, Button } from 'antd';
 import { getPhotoStats, getUserPhotos } from '../api/photos';
-import { getProfile } from '../api/auth';
+import { getProfile } from '../api/user';
 
 const Stats = () => {
   const [photos, setPhotos] = useState([]);
@@ -12,14 +12,14 @@ const Stats = () => {
     const fetchProfileAndPhotos = async () => {
       setLoading(true);
       try {
-        const profileData = await getProfile();
-        setUser(profileData.user);
+        const profileResponse = await getProfile();
+        setUser(profileResponse.data.user);
         
         // Загружаем фотографии пользователя
-        const photosData = await getUserPhotos();
-        setPhotos(photosData.photos || []);
+        const photosResponse = await getUserPhotos();
+        setPhotos(photosResponse.data.photos || []);
       } catch (error) {
-        message.error(error.error || 'Ошибка при загрузке данных');
+        message.error(error.response?.data?.error || 'Ошибка при загрузке данных');
       } finally {
         setLoading(false);
       }
@@ -31,14 +31,14 @@ const Stats = () => {
   const loadStats = async (photoId) => {
     setLoading(true);
     try {
-      const data = await getPhotoStats(photoId);
+      const response = await getPhotoStats(photoId);
       setPhotos((prevPhotos) =>
         prevPhotos.map((p) =>
-          p.id === photoId ? { ...p, stats: data.stats } : p
+          p.id === photoId ? { ...p, stats: response.data.stats } : p
         )
       );
     } catch (error) {
-      message.error(error.error || 'Ошибка при загрузке статистики');
+      message.error(error.response?.data?.error || 'Ошибка при загрузке статистики');
     } finally {
       setLoading(false);
     }
