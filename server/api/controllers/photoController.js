@@ -10,7 +10,10 @@ exports.uploadPhoto = async (req, res) => {
     }
     // Check if user has at least 1 point
     const user = await User.findById(req.user.id);
-    if (!user || user.points < 1) {
+    if (!user) {
+      return res.status(404).json({ error: 'User not found' });
+    }
+    if (user.points < 1) {
       return res.status(400).json({ error: 'Insufficient points to upload photo. Minimum 1 point required.' });
     }
     const photo = new Photo({
@@ -18,6 +21,8 @@ exports.uploadPhoto = async (req, res) => {
       imageUrl
     });
     await photo.save();
+    // Deduct 1 point after successful upload
+    await User.findByIdAndUpdate(req.user.id, { $inc: { points: -1 } });
     res.status(201).json({ photo });
   } catch (error) {
     res.status(500).json({ error: 'Photo upload failed: ' + error.message });
