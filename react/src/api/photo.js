@@ -1,21 +1,30 @@
 import { instance } from './axios';
 
-export const uploadPhoto = (data) => {
-  return instance.post('/api/photos', data);
+export const getPhotos = async (filters = {}) => {
+  try {
+    const response = await instance.get('/api/photos', {
+      params: {
+        gender: filters.gender || '',
+        minAge: filters.minAge || 18,
+        maxAge: filters.maxAge || 100,
+      },
+    });
+    return response.data;
+  } catch (error) {
+    console.error('Error fetching photos:', error);
+    throw error;
+  }
 };
 
-export const getPhotos = (filters = {}) => {
-  const params = new URLSearchParams();
-  if (filters.gender) params.append('gender', filters.gender);
-  if (filters.minAge) params.append('minAge', filters.minAge);
-  if (filters.maxAge) params.append('maxAge', filters.maxAge);
-  return instance.get(`/api/photos?${params.toString()}`);
-};
-
-export const ratePhoto = (data) => {
-  return instance.post('/api/photos/rate', data);
-};
-
-export const getPhotoStats = (photoId = '') => {
-  return instance.get(`/api/photos/${photoId}/stats`);
+export const ratePhoto = async (photoId, score) => {
+  try {
+    const response = await instance.post('/api/photos/rate', {
+      photoId,
+      score,
+    });
+    return response.data;
+  } catch (error) {
+    console.error('Error rating photo:', error);
+    throw error;
+  }
 };
