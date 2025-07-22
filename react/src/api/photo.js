@@ -40,3 +40,13 @@ export const uploadPhoto = async (imageUrl) => {
     throw error;
   }
 };
+
+export const getPhotoStats = async (photoId) => {
+  try {
+    const response = await instance.get(`/api/photos/${photoId}/stats`);
+    return response.data;
+  } catch (error) {
+    console.error('Error fetching photo stats:', error);
+    throw error;
+  }
+};
