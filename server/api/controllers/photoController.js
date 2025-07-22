@@ -8,6 +8,11 @@ exports.uploadPhoto = async (req, res) => {
     if (!imageUrl) {
       return res.status(400).json({ error: 'Image URL is required' });
     }
+    // Check if user has at least 1 point
+    const user = await User.findById(req.user.id);
+    if (!user || user.points < 1) {
+      return res.status(400).json({ error: 'Insufficient points to upload photo. Minimum 1 point required.' });
+    }
     const photo = new Photo({
       owner: req.user.id,
       imageUrl

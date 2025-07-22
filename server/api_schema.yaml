@@ -387,7 +387,7 @@ paths:
                       owner:
                         type: string
         '400':
-          description: Bad request
+          description: Bad request or insufficient points
           content:
             application/json:
               schema:
@@ -395,6 +395,7 @@ paths:
                 properties:
                   error:
                     type: string
+                    description: Error message, e.g., 'Image URL is required' or 'Insufficient points to upload photo. Minimum 1 point required.'
         '401':
           description: Authentication token required
           content:
