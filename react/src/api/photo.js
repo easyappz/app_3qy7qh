@@ -28,3 +28,15 @@ export const ratePhoto = async (photoId, score) => {
     throw error;
   }
 };
+
+export const uploadPhoto = async (imageUrl) => {
+  try {
+    const response = await instance.post('/api/photos', {
+      imageUrl,
+    });
+    return response.data;
+  } catch (error) {
+    console.error('Error uploading photo:', error);
+    throw error;
+  }
+};
