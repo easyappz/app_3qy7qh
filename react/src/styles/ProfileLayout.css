@@ -1,0 +1,27 @@
+.profile-layout {
+  min-height: 100vh;
+}
+
+.profile-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background-color: #001529;
+  padding: 0 24px;
+}
+
+.profile-sider {
+  background-color: #fff;
+  border-right: 1px solid #f0f0f0;
+}
+
+.profile-menu {
+  border-right: none;
+}
+
+.profile-content {
+  background-color: #fff;
+  border-radius: 8px;
+  padding: 24px;
+  min-height: calc(100vh - 64px - 48px);
+}
