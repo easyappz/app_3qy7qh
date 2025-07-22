@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from 'react';
 import { Typography, message, Card, Table, Button } from 'antd';
-import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
 import { getPhotoStats } from '../api/photo';
 import { useNavigate } from 'react-router-dom';
 
@@ -68,23 +67,59 @@ const Stats = () => {
     { title: 'Средняя оценка', dataIndex: 'average', key: 'average', render: (value) => value.toFixed(2) },
   ];
 
+  const BarChartCustom = ({ data, title }) => {
+    const maxCount = Math.max(...data.map(item => item.count));
+    const maxAverage = Math.max(...data.map(item => item.average));
+
+    return (
+      <div style={{ marginBottom: 24 }}>
+        <h3 style={{ marginBottom: 16, textAlign: 'center' }}>{title}</h3>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+          {data.map(item => (
+            <div key={item.name} style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+              <div style={{ fontWeight: 'bold' }}>{item.name}</div>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
+                <div style={{ width: 150, textAlign: 'right' }}>Количество оценок:</div>
+                <div style={{ flexGrow: 1, backgroundColor: '#e6f7ff', borderRadius: 4, overflow: 'hidden' }}>
+                  <div
+                    style={{
+                      width: `${(item.count / maxCount) * 100}%`,
+                      height: 20,
+                      backgroundColor: '#1890ff',
+                      transition: 'width 0.5s ease-in-out',
+                    }}
+                  />
+                </div>
+                <div style={{ width: 50, textAlign: 'center' }}>{item.count}</div>
+              </div>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
+                <div style={{ width: 150, textAlign: 'right' }}>Средняя оценка:</div>
+                <div style={{ flexGrow: 1, backgroundColor: '#f0f9eb', borderRadius: 4, overflow: 'hidden' }}>
+                  <div
+                    style={{
+                      width: `${(item.average / maxAverage) * 100}%`,
+                      height: 20,
+                      backgroundColor: '#52c41a',
+                      transition: 'width 0.5s ease-in-out',
+                    }}
+                  />
+                </div>
+                <div style={{ width: 50, textAlign: 'center' }}>{item.average.toFixed(2)}</div>
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+    );
+  };
+
   return (
     <div style={{ maxWidth: 800, margin: 'auto', padding: '20px' }}>
       <Title level={2} style={{ textAlign: 'center', marginBottom: 24 }}>
         Статистика по вашим фото
       </Title>
       <Card title="Оценки по полу" style={{ marginBottom: 24 }}>
-        <ResponsiveContainer width="100%" height={300}>
-          <BarChart data={genderData}>
-            <CartesianGrid strokeDasharray="3 3" />
-            <XAxis dataKey="name" />
-            <YAxis />
-            <Tooltip formatter={(value) => value.toFixed(2)} />
-            <Legend />
-            <Bar dataKey="average" fill="#8884d8" name="Средняя оценка" />
-            <Bar dataKey="count" fill="#82ca9d" name="Количество оценок" />
-          </BarChart>
-        </ResponsiveContainer>
+        <BarChartCustom data={genderData} title="Распределение по полу" />
         <Table
           dataSource={genderData}
           columns={columns}
@@ -94,17 +129,7 @@ const Stats = () => {
         />
       </Card>
       <Card title="Оценки по возрасту">
-        <ResponsiveContainer width="100%" height={300}>
-          <BarChart data={ageData}>
-            <CartesianGrid strokeDasharray="3 3" />
-            <XAxis dataKey="name" />
-            <YAxis />
-            <Tooltip formatter={(value) => value.toFixed(2)} />
-            <Legend />
-            <Bar dataKey="average" fill="#8884d8" name="Средняя оценка" />
-            <Bar dataKey="count" fill="#82ca9d" name="Количество оценок" />
-          </BarChart>
-        </ResponsiveContainer>
+        <BarChartCustom data={ageData} title="Распределение по возрасту" />
         <Table
           dataSource={ageData}
           columns={columns}
