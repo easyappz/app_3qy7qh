@@ -49,6 +49,7 @@ paths:
                         type: number
                       points:
                         type: number
+                        default: 1
         '400':
           description: Bad request
           content:
@@ -106,6 +107,7 @@ paths:
                         type: number
                       points:
                         type: number
+                        default: 1
         '400':
           description: Invalid credentials
           content:
