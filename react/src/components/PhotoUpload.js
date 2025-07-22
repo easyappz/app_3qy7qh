@@ -24,6 +24,12 @@ const PhotoUpload = () => {
   }, []);
 
   const handleUpload = async ({ file, onSuccess, onError }) => {
+    if (!user || user.points < 1) {
+      message.error('У вас недостаточно баллов для загрузки фотографии. Требуется минимум 1 балл.');
+      onError(new Error('Insufficient points'));
+      return;
+    }
+
     setLoading(true);
     try {
       // Здесь должна быть логика загрузки файла на сервер, например, через API
@@ -71,7 +77,7 @@ const PhotoUpload = () => {
           <p>Для добавления фотографии в оценку требуется минимум 1 балл.</p>
         </div>
       )}
-      <Upload {...uploadProps} disabled={loading}>
+      <Upload {...uploadProps} disabled={loading || (user && user.points < 1)}>
         <Button icon={<UploadOutlined />} loading={loading}>
           Загрузить фотографию
         </Button>
