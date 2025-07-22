@@ -15,7 +15,7 @@ exports.register = async (req, res) => {
     if (existingUser) {
       return res.status(400).json({ error: 'Email already registered' });
     }
-    const user = new User({ name, email, password, gender, age });
+    const user = new User({ name, email, password, gender, age, points: 1 });
     await user.save();
     const token = jwt.sign({ id: user._id, email: user.email }, JWT_SECRET, { expiresIn: '1h' });
     res.status(201).json({ token, user: { id: user._id, name, email, gender, age, points: user.points } });
