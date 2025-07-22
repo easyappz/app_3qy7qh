@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { Upload, Button, message, List, Switch } from 'antd';
 import { UploadOutlined } from '@ant-design/icons';
-import { uploadPhoto, getProfile } from '../api/auth';
+import { uploadPhoto } from '../api/photo';
+import { getProfile } from '../api/user';
 import { instance } from '../api/axios';
 
 const PhotoUpload = () => {
@@ -32,19 +33,29 @@ const PhotoUpload = () => {
 
     setLoading(true);
     try {
+      // Здесь предполагается, что у вас есть эндпоинт для загрузки файла
+      // Если загрузка файла происходит через сторонний сервис, замените это на реальный код
       const formData = new FormData();
       formData.append('file', file);
-      const response = await instance.post('/upload', formData, {
-        headers: {
-          'Content-Type': 'multipart/form-data',
-        },
-      });
-      const photoData = await uploadPhoto({ imageUrl: response.data.url });
+      // Пример: загрузка файла на сервер или сторонний сервис
+      // const response = await instance.post('/upload', formData, {
+      //   headers: {
+      //     'Content-Type': 'multipart/form-data',
+      //   },
+      // });
+      // Временная заглушка для imageUrl
+      const imageUrl = URL.createObjectURL(file);
+      const photoData = await uploadPhoto({ imageUrl });
       setPhotos([...photos, photoData.photo]);
+      // Обновляем профиль пользователя после загрузки фото, чтобы отобразить актуальные баллы
+      const updatedProfile = await getProfile();
+      setUser(updatedProfile.user);
       onSuccess('ok');
       setLoading(false);
+      message.success('Фотография успешно загружена!');
     } catch (error) {
-      message.error('Ошибка при загрузке фотографии');
+      const errorMessage = error.response?.data?.error || 'Ошибка при загрузке фотографии';
+      message.error(errorMessage);
       onError(error);
       setLoading(false);
     }
