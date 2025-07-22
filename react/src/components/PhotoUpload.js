@@ -32,19 +32,17 @@ const PhotoUpload = () => {
 
     setLoading(true);
     try {
-      // Здесь должна быть логика загрузки файла на сервер, например, через API
-      // В данном примере мы просто эмулируем загрузку
       const formData = new FormData();
       formData.append('file', file);
-      // Пример: const response = await instance.post('/api/upload', formData);
-      // Вместо этого используем заглушку
-      setTimeout(async () => {
-        const imageUrl = URL.createObjectURL(file);
-        const photoData = await uploadPhoto({ imageUrl });
-        setPhotos([...photos, photoData.photo]);
-        onSuccess('ok');
-        setLoading(false);
-      }, 1000);
+      const response = await instance.post('/upload', formData, {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+        },
+      });
+      const photoData = await uploadPhoto({ imageUrl: response.data.url });
+      setPhotos([...photos, photoData.photo]);
+      onSuccess('ok');
+      setLoading(false);
     } catch (error) {
       message.error('Ошибка при загрузке фотографии');
       onError(error);
@@ -53,8 +51,8 @@ const PhotoUpload = () => {
   };
 
   const handleSwitchChange = (checked, photoId) => {
-    if (!user || user.points <= 0) {
-      message.warning('У вас недостаточно баллов для добавления фотографии в оценку');
+    if (!user || user.points < 1) {
+      message.warning('У вас недостаточно баллов для добавления фотографии в оценку. Требуется минимум 1 балл.');
       return;
     }
     // Здесь должна быть логика API для изменения статуса фотографии (добавление/удаление из оценки)
@@ -70,42 +68,67 @@ const PhotoUpload = () => {
   };
 
   return (
-    <div>
+    <div style={{ padding: '20px', maxWidth: '800px', margin: '0 auto' }}>
       {user && (
-        <div style={{ marginBottom: '20px' }}>
-          <h3>Баллы: {user.points}</h3>
-          <p>Для добавления фотографии в оценку требуется минимум 1 балл.</p>
+        <div style={{ marginBottom: '20px', textAlign: 'center' }}>
+          <h3 style={{ color: '#333', fontSize: '18px' }}>Ваши баллы: {user.points}</h3>
+          {user.points < 1 ? (
+            <p style={{ color: '#f5222d', fontSize: '14px' }}>
+              У вас недостаточно баллов для загрузки фотографии. Требуется минимум 1 балл.
+            </p>
+          ) : (
+            <p style={{ color: '#52c41a', fontSize: '14px' }}>
+              У вас достаточно баллов для загрузки фотографии!
+            </p>
+          )}
         </div>
       )}
       <Upload {...uploadProps} disabled={loading || (user && user.points < 1)}>
-        <Button icon={<UploadOutlined />} loading={loading}>
+        <Button 
+          icon={<UploadOutlined />} 
+          loading={loading} 
+          style={{ 
+            width: '100%', 
+            maxWidth: '300px', 
+            margin: '0 auto', 
+            display: 'block',
+            borderColor: user && user.points >= 1 ? '#52c41a' : '#f5222d',
+            color: user && user.points >= 1 ? '#52c41a' : '#f5222d'
+          }}
+        >
           Загрузить фотографию
         </Button>
       </Upload>
 
-      <div style={{ marginTop: '20px' }}>
-        <h3>Ваши фотографии</h3>
-        <List
-          itemLayout="horizontal"
-          dataSource={photos}
-          renderItem={(item) => (
-            <List.Item
-              actions={[
-                <Switch
-                  checkedChildren="В оценке"
-                  unCheckedChildren="Не в оценке"
-                  defaultChecked={item.status === 'rating'}
-                  onChange={(checked) => handleSwitchChange(checked, item.id)}
-                />,
-              ]}
-            >
-              <List.Item.Meta
-                avatar={<img src={item.imageUrl} alt="Фото" style={{ width: 100, height: 100, objectFit: 'cover' }} />}
-                title={`Фото ID: ${item.id}`}
-              />
-            </List.Item>
-          )}
-        />
+      <div style={{ marginTop: '30px' }}>
+        <h3 style={{ color: '#333', fontSize: '16px', marginBottom: '15px' }}>Ваши фотографии</h3>
+        {photos.length === 0 ? (
+          <p style={{ color: '#888', textAlign: 'center' }}>У вас пока нет загруженных фотографий.</p>
+        ) : (
+          <List
+            itemLayout="horizontal"
+            dataSource={photos}
+            renderItem={(item) => (
+              <List.Item
+                actions={[
+                  <Switch
+                    checkedChildren="В оценке"
+                    unCheckedChildren="Не в оценке"
+                    defaultChecked={item.status === 'rating'}
+                    onChange={(checked) => handleSwitchChange(checked, item.id)}
+                    disabled={user && user.points < 1}
+                  />,
+                ]}
+                style={{ background: '#fff', borderRadius: '8px', marginBottom: '10px', boxShadow: '0 2px 8px rgba(0, 0, 0, 0.1)' }}
+              >
+                <List.Item.Meta
+                  avatar={<img src={item.imageUrl} alt="Фото" style={{ width: 100, height: 100, objectFit: 'cover', borderRadius: '4px' }} />}
+                  title={`Фото ID: ${item.id}`}
+                />
+              </List.Item>
+            )}
+          />
+        )}
       </div>
     </div>
   );
