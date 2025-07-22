@@ -3,7 +3,6 @@ import { Upload, Button, message, List, Switch } from 'antd';
 import { UploadOutlined } from '@ant-design/icons';
 import { uploadPhoto } from '../api/photo';
 import { getProfile } from '../api/user';
-import { instance } from '../api/axios';
 
 const PhotoUpload = () => {
   const [fileList, setFileList] = useState([]);
@@ -25,12 +24,6 @@ const PhotoUpload = () => {
   }, []);
 
   const handleUpload = async ({ file, onSuccess, onError }) => {
-    if (!user || user.points < 1) {
-      message.error('У вас недостаточно баллов для загрузки фотографии. Требуется минимум 1 балл.');
-      onError(new Error('Insufficient points'));
-      return;
-    }
-
     setLoading(true);
     try {
       // Здесь предполагается, что у вас есть эндпоинт для загрузки файла
@@ -62,10 +55,6 @@ const PhotoUpload = () => {
   };
 
   const handleSwitchChange = (checked, photoId) => {
-    if (!user || user.points < 1) {
-      message.warning('У вас недостаточно баллов для добавления фотографии в оценку. Требуется минимум 1 балл.');
-      return;
-    }
     // Здесь должна быть логика API для изменения статуса фотографии (добавление/удаление из оценки)
     message.success(checked ? 'Фотография добавлена в оценку' : 'Фотография удалена из оценки');
   };
@@ -83,18 +72,9 @@ const PhotoUpload = () => {
       {user && (
         <div style={{ marginBottom: '20px', textAlign: 'center' }}>
           <h3 style={{ color: '#333', fontSize: '18px' }}>Ваши баллы: {user.points}</h3>
-          {user.points < 1 ? (
-            <p style={{ color: '#f5222d', fontSize: '14px' }}>
-              У вас недостаточно баллов для загрузки фотографии. Требуется минимум 1 балл.
-            </p>
-          ) : (
-            <p style={{ color: '#52c41a', fontSize: '14px' }}>
-              У вас достаточно баллов для загрузки фотографии!
-            </p>
-          )}
         </div>
       )}
-      <Upload {...uploadProps} disabled={loading || (user && user.points < 1)}>
+      <Upload {...uploadProps} disabled={loading}>
         <Button 
           icon={<UploadOutlined />} 
           loading={loading} 
@@ -103,8 +83,8 @@ const PhotoUpload = () => {
             maxWidth: '300px', 
             margin: '0 auto', 
             display: 'block',
-            borderColor: user && user.points >= 1 ? '#52c41a' : '#f5222d',
-            color: user && user.points >= 1 ? '#52c41a' : '#f5222d'
+            borderColor: '#52c41a',
+            color: '#52c41a'
           }}
         >
           Загрузить фотографию
@@ -127,7 +107,6 @@ const PhotoUpload = () => {
                     unCheckedChildren="Не в оценке"
                     defaultChecked={item.status === 'rating'}
                     onChange={(checked) => handleSwitchChange(checked, item.id)}
-                    disabled={user && user.points < 1}
                   />,
                 ]}
                 style={{ background: '#fff', borderRadius: '8px', marginBottom: '10px', boxShadow: '0 2px 8px rgba(0, 0, 0, 0.1)' }}
